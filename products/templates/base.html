@@ -9,9 +9,78 @@
 </head>
 <body class="d-flex flex-column vh-100">
     <header>
-        <nav class="navbar navbar-dark bg-dark">
-            <div class="container">
-                <a href="{% url 'index' %}" class="navbar-brand"> Home </a>
+        <nav class="navbar navbar-dark bg-dark fixed-top">
+            <div class="container d-flex flex-column">
+                <div class="navbar-nav w-100 text-start">
+                    <a href="{% url 'index' %}" class="navbar-brand"> Home </a>
+                </div>
+                <div class="nav-item text-light">
+                    <form action="{% url 'index' %}"
+                          method="GET"
+                          class="d-flex mx-auto">
+                        <select
+                                name="category"
+                                class="form-select me-3"
+                                onchange="this.form.submit()"
+                        >
+                            <option value="" {% if not request.GET.category %} selected {% endif %}> Category </option>
+                            {% for category in categories %}
+                                <option value="{{ category.name }}" {% if not request.GET.category == category.name %} selected {% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                            <select name="filter" class="form-select me-3" onchange="this.form.submit()">
+                                <option value="" {% if not request.GET.filter %} selected {% endif %}>Filter</option>
+                                <option value="price_increase" {% if request.GET.filter == "price_increase" %} selected {% endif %}>
+                                    Increasing price
+                                </option>
+                                <option value="price_decrease" {% if request.GET.filter == "price_decrease" %} selected {% endif %}>
+                                    Decreasing price
+                                </option>
+                                <option value="rating_increase" {% if request.GET.filter == "rating_increase" %} selected {% endif %}>
+                                    Increasing rating
+                                </option>
+                                <option value="rating_decrease" {% if request.GET.filter == "rating_decrease" %} selected {% endif %}>
+                                    Decreasing rating
+                                </option>
+                                <option value="date_newest" {% if request.GET.filter == "date_newest" %} selected {% endif %}>
+                                    Newest first
+                                </option>
+                                <option value="date_oldest" {% if request.GET.filter == "date_oldest" %} selected {% endif %}>
+                                    Oldest first
+                                </option>
+                            </select>
+                        <input
+                                type="search"
+                                class="form-control me-3"
+                                name="search"
+                                placeholder="Searching"
+                                onchange="this.form.submit()"
+                                value="{{ request.GET.search|default:'' }}"
+                        />
+
+                        <label for="min_price"> Minimum price: </label>
+                        <input
+                            type="number"
+                            name="min_price"
+                            class="w-25 form-control"
+                            min="0"
+                            onchange="this.form.submit()"
+                            value="{{ request.GET.min_price|default:'' }}"
+                        />
+
+                        <label for="max_price"> Maximum price: </label>
+                        <input
+                            type="number"
+                            name="max_price"
+                            class="w-25 form-control"
+                            min="0"
+                            onchange="this.form.submit()"
+                            value="{{ request.GET.max_price|default:'' }}"
+                        />
+                    </form>
+                </div>
             </div>
         </nav>
     </header>

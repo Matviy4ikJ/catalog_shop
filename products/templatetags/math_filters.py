@@ -6,4 +6,5 @@ register = template.Library()
 
 @register.filter
 def calculate_discount(value, arg):
-    return value * arg / 100
+    discount_value = value * arg / 100
+    return value - discount_value
