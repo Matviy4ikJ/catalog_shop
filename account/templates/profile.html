@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex">
+    <h2>Профіль</h2>
+    <a href="{% url 'account:edit_profile' %}">
+        <i class="bi bi-pencil-square"></i>
+    </a>
+</div>
+    <ul>
+        <li><img src="{{ profile.avatar.url }}" alt="avatar" width="150"></li>
+        <li>Username: {{request.user.username}}</li>
+        <li>Email: {{ request.user.email }}</li>
+    </ul>
+    <a href="{% url 'account:password_change' %}">Change password</a>
+{% endblock %}

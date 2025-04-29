@@ -9,11 +9,28 @@
 </head>
 <body class="d-flex flex-column vh-100">
     <header>
-        <nav class="navbar navbar-dark bg-dark fixed-top">
-            <div class="container d-flex flex-column">
-                <div class="navbar-nav w-100 text-start">
-                    <a href="{% url 'index' %}" class="navbar-brand"> Home </a>
+        <nav class="navbar navbar-dark bg-dark position-relative">
+            <div class="container d-flex justify-content-between align-items-center">
+                <a href="{% url 'index' %}" class="navbar-brand mb-0">Home</a>
+
+                <form action="{% url 'index' %}" method="GET" class="d-flex mx-auto">
+                    <!-- Селектори фільтрів і пошуку -->
+                    ...
+                </form>
+
+                <div class="d-flex align-items-center text-white">
+                    {% if request.user.is_authenticated %}
+                        <span class="me-3">Hello, {{ request.user.username }}</span>
+                        <a href="{% url 'account:profile' %}" class="btn btn-outline-light me-2">Profile</a>
+                        <a href="{% url 'account:password_change' %}" class="btn btn-outline-light me-2">Change Password</a>
+                        <a href="{% url 'account:logout' %}" class="btn btn-outline-light">Log Out</a>
+                    {% else %}
+                        <a href="{% url 'account:register' %}" class="btn btn-outline-light me-2">Register</a>
+                        <a href="{% url 'account:login' %}" class="btn btn-outline-light">Login</a>
+                    {% endif %}
                 </div>
+            </div>
+
                 <div class="nav-item text-light">
                     <form action="{% url 'index' %}"
                           method="GET"
@@ -80,9 +97,6 @@
                             value="{{ request.GET.max_price|default:'' }}"
                         />
                     </form>
-                    <div class="navbar-nav w-100 text-end">
-                        <a href="{% url 'register' %}" class="navbar-brand"> Register </a>
-                    </div>
                 </div>
             </div>
         </nav>

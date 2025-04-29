@@ -39,6 +39,7 @@
                         </span>
                     {% endif %}
                     <a href="{% url 'product_details' product.id %}" class="btn-primary">Details</a>
+                    <a href="{% url 'cart_add' product.id %}" class="btn-primary">Add to your cart</a>
                 </div>
             </div>
         </div>

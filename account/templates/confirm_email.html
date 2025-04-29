@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <p> Successfully confirmed email: {{ new_email.email }} </p>
+    <a href="{% url 'index' %}" class="navbar-brand mb-0">Return to the main page</a>
+</div>
+{% endblock %}
