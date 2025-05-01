@@ -2,15 +2,10 @@ from django.shortcuts import render, redirect
 from .forms import RegisterForm, ProfileUpdateForm
 from .models import Profile
 from products.models import Cart, Product
-from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
-from django.core.mail import send_mail
-from django.contrib import messages
-from django.http import HttpResponseBadRequest
 from django.conf import settings
-from utils.email import sent_email_confirm
+from utils.email import send_email_confirm
 
 
 def register(request):
@@ -37,7 +32,7 @@ def login_view(request):
             login(request, user)
             session_cart = request.session.get(settings.CART_SESSION_ID)
             if session_cart:
-                cart = Cart.objects.get_or_create(user=user)
+                cart = user.cart
                 for product_id, amount in session_cart.items():
                     product = Product.objects.get
                     cart_item, created = CartItem.objects.get(cart=cart, product=product)
@@ -64,14 +59,14 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
-    profile, _ = Profile.objects.get_or_create(user=request.user)
+    profile = request.user.cart
     return render(request, 'profile.html', {'profile': profile})
 
 
 @login_required
 def edit_profile(request):
     user = request.user
-    profile, _ = Profile.objects.get_or_create(user=request.user)
+    profile = user.profile
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, request.FILES, user=user)
         if form.is_valid():

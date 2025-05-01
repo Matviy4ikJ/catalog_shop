@@ -1,5 +1,6 @@
 from django.urls import path, include
-from .views import register, login_view, logout_view, profile_view, edit_profile, confirm_email
+from .views import register, login_view, logout_view, profile_view, edit_profile
+from utils.email import send_email_confirm
 from django.contrib.auth import views as auth_views
 
 
@@ -20,7 +21,7 @@ urlpatterns = [
          auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'),
          name='password_change_done'),
 
-    path("confirm_email/", confirm_email, name="confirm_email"),
+    path("confirm_email/", send_email_confirm, name="confirm_email"),
 
     path("password_reset/", auth_views.PasswordResetView.as_view(
         template_name="password_reset/form.html",

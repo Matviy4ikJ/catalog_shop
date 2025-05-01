@@ -1,8 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+
 from .views import index, about_us, product_details, cart_add, cart_detail_view, cart_remove, cart_update, checkout
 from django.conf.urls.static import static
 from django.conf import settings
+
 
 urlpatterns = [
     path('', index, name='index'),
@@ -19,3 +22,8 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [
+        path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+        path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+        # path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    ]
