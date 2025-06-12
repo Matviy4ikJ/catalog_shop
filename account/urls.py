@@ -1,5 +1,5 @@
-from django.urls import path, include
-from .views import register, login_view, logout_view, profile_view, edit_profile
+from django.urls import path
+from account.views.views import register, login_view, logout_view, profile_view, edit_profile
 from utils.email import send_email_confirm
 from django.contrib.auth import views as auth_views
 

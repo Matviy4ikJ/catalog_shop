@@ -12,10 +12,12 @@ class OrderCreateForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['contact_name', 'contact_email', 'contact_phone', 'address']
+        labels = {
+            'contact_name': 'Enter your name',
+            'contact_email': 'Enter your contact email',
+            'contact_phone': 'Enter your contact phone',
+            'address': 'Enter your address',
+            'payment_method': 'Payment method:'
+        }
 
-        labels = {'contact_name': 'Enter your name',
-                  'contact_email': 'Enter your contact email',
-                  'contact_phone': 'Enter your contact phone',
-                  'address': 'Enter your address',
-                  'payment_method': 'Payment method:'}
 

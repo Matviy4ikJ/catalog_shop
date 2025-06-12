@@ -38,18 +38,28 @@ class Product(models.Model):
     attributes = models.JSONField(default=dict, null=True)
     discount = models.IntegerField(default=0)
 
+    @property
+    def discount_price(self):
+        if self.discount:
+            return round(self.price - (self.price * self.discount / 100), 2)
+        return self.price
+
     class Meta:
         ordering = ['-created_at']
         db_table = 'products'
         unique_together = ['name', 'description']
 
     def __str__(self):
-        return self.name, self.nomenclature
+        return f"{self.name} ({self.nomenclature})"
 
 
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total(self):
+        return sum(item.item_total for item in self.items.all())
 
     def __str__(self):
         return f'{self.user.username}`s cart'
@@ -59,6 +69,12 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=1)
+
+    @property
+    def item_total(self):
+        return self.product.price * self.amount\
+            if not self.product.discount_price\
+            else self.product.discount_price * self.amount
 
     class Meta:
         unique_together = ('cart', 'product')
@@ -94,6 +110,12 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def item_total(self):
+        return self.product.price * self.amount\
+            if not self.product.discount_price\
+            else self.product.discount_price * self.amount
 
     def __str__(self):
         return f'{self.order.id} : {self.product.name} : {self.amount} : {self.price}$'

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm, ProfileUpdateForm
-from .models import Profile
+from account.forms import RegisterForm, ProfileUpdateForm
+from account.models import Profile
 from products.models import Cart, Product
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required

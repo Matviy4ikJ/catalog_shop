@@ -3,11 +3,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from captcha.fields import CaptchaField
 from django.core.exceptions import ValidationError
+from .serializers import CaptchaFieldSerializer
 
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
-    captcha = CaptchaField()
+    captcha = CaptchaFieldSerializer()
 
     class Meta:
         model = User
@@ -31,3 +32,8 @@ class ProfileUpdateForm(forms.Form):
         super().__init__(*args, **kwargs)
         if self.user:
             self.fields['email'].initial = self.user.email
+
+
+class  LoginForm(forms.Form):
+    username = forms.CharField(required=True, label='Login:')
+    password = forms.PasswordInput()
