@@ -25,12 +25,10 @@ class CaptchaFieldSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         from captcha.models import CaptchaStore
-        # from captcha.helpers import captcha_image_url
 
         try:
             captcha = CaptchaStore.objects.get(hashkey=attrs['captcha_0'])
-
-        except CaptchaStore.DoesNotExist:ок,
+        except CaptchaStore.DoesNotExist:
             raise serializers.ValidationError('Incorrect captcha')
 
         if captcha.response != attrs.get('captcha_1', '').lower():
@@ -39,6 +37,7 @@ class CaptchaFieldSerializer(serializers.Serializer):
         captcha.delete()
 
         return attrs
+
 
 
 class RegisterFormSerializer(serializers.Serializer):

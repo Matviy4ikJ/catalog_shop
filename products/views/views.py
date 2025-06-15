@@ -7,11 +7,6 @@ from ..forms import OrderCreateForm
 from ..models import Product, Category, Cart, CartItem, OrderItem, Order
 
 
-def calculate_discount(value, arg):
-    discount_value = value * arg / 100
-    return value - discount_value
-
-
 def index(request):
     products = Product.objects.all()
     categories = Category.objects.all()
@@ -102,7 +97,8 @@ def cart_detail_view(request):
         total_price = 0
         for product in products:
             count = cart[str(product.id)]
-            price = count * product.price
+            discount_price = product.discount_price
+            price = discount_price * count
             total_price += price
 
             cart_items.append({
@@ -126,8 +122,8 @@ def cart_detail_view(request):
             cart_items = []
             total_price = 0
         else:
-            cart_items = cart.items.select_related('product').all
-            total_price = sum(item.product.price * item.amount for item in cart_items)
+            cart_items = cart.items.select_related('product').all()
+            total_price = cart.total
 
         return render(request,
                       'cart_detail.html',
@@ -204,7 +200,7 @@ def checkout(request):
                         order=order,
                         product=item.product,
                         amount=item.amount,
-                        price=calculate_discount(item.product.price, item.product.discount)
+                        price=item.product.discount_price
                     ) for item in cart_items
                 ]
                 )
@@ -213,11 +209,11 @@ def checkout(request):
                         order=order,
                         product=item.product,
                         amount=item.amount,
-                        price=calculate_discount(item.product.price, item.product.discount)
+                        price=item.product.discount_price
                     ) for item in cart_items
                 ]
                 )
-                total_price = sum(item.product.price*item.amount)
+                total_price = item.item_total
                 method = form.cleaned_data.get('payment_method')
                 if method != 'cash':
                     Payment.objects.create(order=order, provider=method, amount=total_price)
@@ -232,7 +228,7 @@ def checkout(request):
                         order=order,
                         product=product,
                         amount=amount,
-                        price=calculate_discount(product.price, product.discount)
+                        price=item.product.discount_price
                     )
                 request.session[settings.CART_SESSION_ID] = {}
 

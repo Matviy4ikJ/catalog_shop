@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiTypes
+
 from rest_framework.decorators import action
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from rest_framework.response import Response
-
 
 from ..models import Cart, CartItem, Product, Order, OrderItem, Payment
 from ..serializers.cart_serializer import CartSerializer, CartItemSerializer
@@ -13,6 +14,35 @@ from ..forms import OrderCreateForm
 from utils.email import send_order_confirmation_email
 
 
+@extend_schema_view(
+    add=extend_schema(
+        summary="Add product to cart",
+        description="Додає вказаний товар до кошика (авторизованого користувача або в сесію).",
+        parameters=[
+            OpenApiParameter(name='product_id', required=True, location=OpenApiParameter.PATH, type=int),
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
+    ),
+    items=extend_schema(
+        summary="Get all cart items",
+        description="Повертає всі товари в кошику (авторизованого користувача або збережені в сесії).",
+        responses={
+            200: CartSerializer,
+        },
+    ),
+    checkout=extend_schema(
+        summary="Checkout the cart",
+        description="Оформлення замовлення з кошика. Якщо авторизований користувач — створюється запис в базі даних і "
+                    "оплата, інакше працює з сесією.",
+        responses={
+            201: OpenApiTypes.OBJECT,
+            400: OpenApiTypes.OBJECT,
+        },
+    ),
+)
 class CartViewSet(ViewSet):
     @action(detail=False, methods=['post'], url_path='add-to-cart')
     def add(self, request, product_id=None):
@@ -118,4 +148,3 @@ class CartViewSet(ViewSet):
         send_order_confirmation_email(order=order)
 
         return Response({'message': f'Order №{order.id} is created'}, status=201)
-

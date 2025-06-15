@@ -3,7 +3,7 @@ import pytest
 from .fixtures import *
 
 from account.models import Profile
-from products.models import Cart, Product, Category, CartItem
+from products.models import Cart, Product, Category, CartItem, Order, OrderItem
 
 from django.urls import reverse
 
@@ -84,3 +84,49 @@ def test_cart_model_different_products(user):
     CartItem.objects.create(cart=user.cart, product=product)
 
     assert user.cart.total == 164
+
+
+@pytest.mark.django_db
+def test_order_creation(order, product, product_discount):
+    # order - фікстура, яка створює Order з двома OrderItem
+
+    # Перевіряємо, що у замовлення два елементи
+    assert order.items.count() == 2
+
+    # Перевіряємо загальну суму замовлення:
+    # OrderItem 1: price=100, amount=1 (за замовчуванням)
+    # OrderItem 2: price=80, amount=2
+    expected_total = 100 * 1 + 80 * 2
+    assert order.total == expected_total
+
+    # Перевіряємо, що строкове представлення order правильне
+    assert str(order) == f'order #{order.id}'
+
+
+@pytest.mark.django_db
+def test_order_item_item_total(product, product_discount):
+    order = Order.objects.create(
+        user=None,
+        contact_name='Test',
+        contact_phone='1234567890',
+        contact_email='test@example.com',
+        address='Test Address',
+    )
+
+    # Створюємо OrderItem без знижки
+    item1 = OrderItem.objects.create(
+        order=order,
+        product=product,
+        price=product.price,
+        amount=3
+    )
+    assert item1.item_total == product.price * 3
+
+    # Створюємо OrderItem зі знижкою (discount_price)
+    item2 = OrderItem.objects.create(
+        order=order,
+        product=product_discount,
+        price=product_discount.discount_price,
+        amount=2
+    )
+    assert item2.item_total == product_discount.discount_price * 2

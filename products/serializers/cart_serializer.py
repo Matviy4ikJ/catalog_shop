@@ -16,6 +16,11 @@ class CartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = ['cart', 'product', 'item_total', 'amount']
 
+    def validate_amount(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Amount must be at least 1.")
+        return value
+
     @extend_schema_field(OpenApiTypes.DECIMAL)
     def get_item_total(self, obj):
         return obj.item_total

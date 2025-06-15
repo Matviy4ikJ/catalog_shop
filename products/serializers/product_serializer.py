@@ -9,7 +9,7 @@ from ..models import Product, Category
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), write_only=True)
+    category = serializers.PrimaryKeyRelatedField(read_only=True)
     discount_price = serializers.SerializerMethodField()
 
     class Meta:
@@ -31,12 +31,7 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
     def get_discount_price(self, obj):
-        discount = obj.get('discount') if isinstance(obj, dict) else getattr(obj, 'discount', 0)
-        price = obj.get('price') if isinstance(obj, dict) else getattr(obj, 'price', 0)
-
-        if discount:
-            return round(price - (price * discount / 100), 2)
-        return price
+        return getattr(obj, "discount_price", None)
 
     def validate_price(self, value):
         if value < 0:

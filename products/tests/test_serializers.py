@@ -4,6 +4,7 @@ import pytest_check as check
 from .fixtures import *
 
 from products.serializers.product_serializer import ProductSerializer
+from products.serializers.order_serializer import OrderSerializer
 
 
 @pytest.mark.django_db
@@ -30,13 +31,12 @@ def test_product_serializer_valid(category):
 @pytest.mark.django_db
 def test_product_serializer_invalid(category):
     data = {
-        'name': '*'*101,
+        'name': '*' * 101,
         'description': {},
         'entity': -3,
         'price': -100,
         'available': 15,
-        'category': 9999999999,
-        'nomenclature': '*'*101,
+        'nomenclature': '*' * 101,
         'rating': '*',
         'discount': -10,
         'attributes': '*'
@@ -72,10 +72,43 @@ def test_products_serializer_read_only(category):
     }
 
     serializer = ProductSerializer(data=data)
+
     assert serializer.is_valid()
+    assert "category" not in serializer.data
 
-    product = serializer.save()
 
-    serializer2 = ProductSerializer(product)
+@pytest.mark.django_db
+def test_products_serializer_method_field(product_discount):
+    serializer = ProductSerializer(product_discount)
 
-    assert "category" not in serializer2.data
+    assert serializer.data['discount_price'] == product_discount.discount_price
+    assert serializer.data['discount_price'] == 80
+
+
+@pytest.mark.django_db
+def test_order_serializer_read_only(user, order):
+    data = {
+        'user': user.id,
+        'contact_name': 'test-name',
+        'contact_email': 'testemail@gmail.com',
+        'contact_phone': '3859475892',
+        'address': 'test-address',
+    }
+
+    serializer = OrderSerializer(data=data)
+
+    assert serializer.is_valid()
+    assert "items" not in serializer.validated_data
+
+    serializer = OrderSerializer(order)
+
+    assert 'items' in serializer.data
+
+
+@pytest.mark.django_db
+def test_order_serializer_items(order):
+    serializer = OrderSerializer(order)
+    items = serializer.data['items']
+
+    assert len(items) == 2
+
