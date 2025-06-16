@@ -28,10 +28,10 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(source='cart_items', many=True)
+    total = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        extra_kwargs = {'total': {'required': True}}
         fields = ['user', 'created_at', 'items', 'total']
 
     @extend_schema_field(OpenApiTypes.DECIMAL)

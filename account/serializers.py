@@ -39,7 +39,6 @@ class CaptchaFieldSerializer(serializers.Serializer):
         return attrs
 
 
-
 class RegisterFormSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password1 = serializers.CharField(required=True)

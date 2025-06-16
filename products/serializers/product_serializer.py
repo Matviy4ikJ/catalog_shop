@@ -30,7 +30,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'discount_price',
         ]
 
-    def get_discount_price(self, obj):
+    def get_discount_price(self, obj) -> float:
         return getattr(obj, "discount_price", None)
 
     def validate_price(self, value):

@@ -88,18 +88,10 @@ def test_cart_model_different_products(user):
 
 @pytest.mark.django_db
 def test_order_creation(order, product, product_discount):
-    # order - фікстура, яка створює Order з двома OrderItem
 
-    # Перевіряємо, що у замовлення два елементи
     assert order.items.count() == 2
-
-    # Перевіряємо загальну суму замовлення:
-    # OrderItem 1: price=100, amount=1 (за замовчуванням)
-    # OrderItem 2: price=80, amount=2
     expected_total = 100 * 1 + 80 * 2
     assert order.total == expected_total
-
-    # Перевіряємо, що строкове представлення order правильне
     assert str(order) == f'order #{order.id}'
 
 
@@ -113,7 +105,6 @@ def test_order_item_item_total(product, product_discount):
         address='Test Address',
     )
 
-    # Створюємо OrderItem без знижки
     item1 = OrderItem.objects.create(
         order=order,
         product=product,
@@ -122,7 +113,6 @@ def test_order_item_item_total(product, product_discount):
     )
     assert item1.item_total == product.price * 3
 
-    # Створюємо OrderItem зі знижкою (discount_price)
     item2 = OrderItem.objects.create(
         order=order,
         product=product_discount,
