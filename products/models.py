@@ -72,9 +72,7 @@ class CartItem(models.Model):
 
     @property
     def item_total(self):
-        return self.product.price * self.amount\
-            if not self.product.discount_price\
-            else self.product.discount_price * self.amount
+        return (self.product.discount_price or self.product.price) * self.amount
 
     class Meta:
         unique_together = ('cart', 'product')
@@ -127,11 +125,14 @@ class OrderItem(models.Model):
 
 class Payment(models.Model):
     order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='payment')
-    provider = models.CharField(max_length=20, choices={
-        'liqpay': 'LiqPay',
-        'monopay': 'MonoPay',
-        'googlepay': 'Google Pay'
-    })
+
+    PROVIDER_CHOICES = [
+        ('liqpay', 'LiqPay'),
+        ('monopay', 'MonoPay'),
+        ('googlepay', 'Google Pay'),
+    ]
+
+    provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Status(models.IntegerChoices):

@@ -1,45 +1,39 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiTypes
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiResponse
 
 from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 
 from ..models import Cart, CartItem, Product, Order, OrderItem, Payment
-from ..serializers.cart_serializer import CartSerializer
-from ..serializers.product_serializer import ProductSerializer
+from ..serializers.cart_serializer import CartSerializer, CartItemInputSerializer, CartItemSerializer
+from .. serializers.order_serializer import OrderCheckoutSerializer
 from ..forms import OrderCreateForm
-from utils.email import send_order_confirmation_email
+from utils.email import sent_order_confirmation_email
 
 
 @extend_schema_view(
     add=extend_schema(
         summary="Add product to cart",
         description="Adds the specified product to the cart (for authenticated users or stored in session).",
-        parameters=[
-            OpenApiParameter(name='product_id', required=True, location=OpenApiParameter.PATH, type=int),
-        ],
+        request=CartItemInputSerializer,
         responses={
-            200: OpenApiTypes.OBJECT,
-            404: OpenApiTypes.OBJECT,
+            200: OpenApiResponse(description="Success message"),
+            404: OpenApiResponse(description="Product not found"),
         },
     ),
     items=extend_schema(
         summary="Get all cart items",
-        description="Returns all products in the cart (for authenticated users or stored in session).",
-        responses={
-            200: CartSerializer,
-        },
+        responses={200: CartSerializer},
     ),
     checkout=extend_schema(
         summary="Checkout the cart",
-        description="Processes the cart checkout. If the user is authenticated, an order is created in the database "
-                    "and payment is processed; otherwise, it works with the session.",
+        request=OrderCheckoutSerializer,
         responses={
-            201: OpenApiTypes.OBJECT,
-            400: OpenApiTypes.OBJECT,
+            201: OpenApiResponse(description="Order created"),
+            400: OpenApiResponse(description="Bad request"),
         },
     ),
 )
@@ -48,23 +42,29 @@ class CartViewSet(GenericViewSet):
     serializer_class = CartSerializer
 
     @action(detail=False, methods=['post'], url_path='add-to-cart')
-    def add(self, request, product_id=None):
+    def add(self, request):
+        serializer = CartItemInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        product_id = serializer.validated_data['product_id']
+        amount = serializer.validated_data['amount']
+
         product = get_object_or_404(Product, id=product_id)
+
         if request.user.is_authenticated:
             cart = request.user.cart
             cart_item, created = CartItem.objects.get_or_create(product=product, cart=cart)
             if created:
-                cart_item.amount = 1
+                cart_item.amount = amount
             else:
-                cart_item.amount += 1
+                cart_item.amount += amount
             cart_item.save()
         else:
-            cart = request.session.get(settings.CART_SESSION_ID, default={})
-            cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+            cart = request.session.get(settings.CART_SESSION_ID, {})
+            cart[str(product_id)] = cart.get(str(product_id), 0) + amount
             request.session[settings.CART_SESSION_ID] = cart
             request.session.modified = True
 
-        return Response({'message': f'product №{product_id} is successfully added to cart'}, status=200)
+        return Response({'message': f'Product №{product_id} successfully added to cart'}, status=200)
 
     @action(detail=False, methods=['get'], url_path='get-cart-items/', serializer_class=CartSerializer)
     def items(self, request):
@@ -74,21 +74,31 @@ class CartViewSet(GenericViewSet):
         else:
             cart = request.session.get(settings.CART_SESSION_ID, default={})
             products = Product.objects.filter(id__in=cart.keys())
-            items = []
+            items_data = []
             total = 0
+
             for product in products:
-                data = ProductSerializer(product).data
                 amount = cart.get(str(product.id))
-                item_total = product.discount_price if product.discount_price is not None else product.price
-                item_total *= amount
-                items.append({
-                    'product': data,
+                price = product.discount_price if product.discount_price is not None else product.price
+                item_total = price * amount
+
+                item_dict = {
+                    'product': product,
                     'amount': amount,
                     'item_total': item_total,
-                    'cart': None,
-                })
+                    'cart': None
+                }
+                items_data.append(item_dict)
                 total += item_total
-            return Response({'user': None, 'created_at': None, 'items': items, 'total': total})
+
+            serialized_items = CartItemSerializer(items_data, many=True).data
+
+            return Response({
+                'user': None,
+                'created_at': None,
+                'items': serialized_items,
+                'total': total
+            })
 
     @action(detail=False, methods=['post'], url_path='cart-checkout/')
     def checkout(self, request):
@@ -149,6 +159,6 @@ class CartViewSet(GenericViewSet):
             request.session[settings.CART_SESSION_ID] = cart
             request.session.modified = True
 
-        send_order_confirmation_email(order=order)
+        sent_order_confirmation_email(order=order)
 
         return Response({'message': f'Order №{order.id} is created'}, status=201)

@@ -7,7 +7,7 @@ class OrderCreateForm(forms.ModelForm):
                                                 'monopay': 'Pay with MonoPay',
                                                 'googlepay': 'Pay with Google Pay',
                                                 'cash': 'With cash'
-                                                }),
+                                                })
 
     class Meta:
         model = Order

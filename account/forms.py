@@ -34,6 +34,6 @@ class ProfileUpdateForm(forms.Form):
             self.fields['email'].initial = self.user.email
 
 
-class  LoginForm(forms.Form):
+class LoginForm(forms.Form):
     username = forms.CharField(required=True, label='Login:')
     password = forms.PasswordInput()

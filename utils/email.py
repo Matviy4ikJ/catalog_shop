@@ -11,7 +11,7 @@ from django.http import HttpResponseBadRequest
 from django.conf import settings
 
 
-def send_email_confirm(request, user, new_email):
+def sent_email_confirm(request, user, new_email):
     confirm_url = request.build_absolute_uri(reverse('account:confirm_email'))
     confirm_url += f'?user={user.id}&email={new_email}'
 
@@ -27,7 +27,7 @@ def send_email_confirm(request, user, new_email):
     messages.info(request, 'Confirmation mail was sent')
 
 
-def send_order_confirmation_email(order: Order):
+def sent_order_confirmation_email(order: Order):
     subject = f'Confirmation order {order.id}'
     context = {'order': order}
     text_content = render_to_string('email/confirmation_email.txt', context)

@@ -5,7 +5,7 @@ from products.models import Cart, Product
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from utils.email import send_email_confirm
+from utils.email import sent_email_confirm
 
 
 def register(request):

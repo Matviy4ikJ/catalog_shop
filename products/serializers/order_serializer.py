@@ -33,3 +33,22 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
+
+
+class OrderCheckoutSerializer(serializers.ModelSerializer):
+    payment_method = serializers.ChoiceField(choices=[
+        ('liqpay', 'Pay with LiqPay'),
+        ('monopay', 'Pay with MonoPay'),
+        ('googlepay', 'Pay with Google Pay'),
+        ('cash', 'With cash'),
+    ])
+
+    class Meta:
+        model = Order
+        fields = [
+            'contact_name',
+            'contact_email',
+            'contact_phone',
+            'address',
+            'payment_method',
+        ]

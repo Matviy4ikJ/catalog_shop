@@ -96,15 +96,7 @@ def test_order_creation(order, product, product_discount):
 
 
 @pytest.mark.django_db
-def test_order_item_item_total(product, product_discount):
-    order = Order.objects.create(
-        user=None,
-        contact_name='Test',
-        contact_phone='1234567890',
-        contact_email='test@example.com',
-        address='Test Address',
-    )
-
+def test_order_item_item_total(product, product_discount, order):
     item1 = OrderItem.objects.create(
         order=order,
         product=product,

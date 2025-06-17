@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from products.models import Product, CartItem
 from ..forms import RegisterForm, LoginForm, ProfileUpdateForm
-from ...utils.email import send_email_confirm
+from ...utils.email import sent_email_confirm
 from ..serializers import ProfileSerializer, UserSerializer, User, RegisterFormSerializer
 
 
@@ -24,12 +24,12 @@ class AccountViewSet(ViewSet):
     def register(self, request):
         form = RegisterForm(request.data)
 
-        if form.is_valid:
+        if form.is_valid():
             user = form.save(commit=False)
             user.is_active = False
             user.save()
             login(request, user)
-            send_email_confirm(request, user, user.email)
+            sent_email_confirm(request, user, user.email)
 
             return Response({'message': 'User registered successfully'}, status=201)
 
@@ -41,7 +41,7 @@ class AccountViewSet(ViewSet):
         form = LoginForm(request.data)
 
         if form.is_valid():
-            user = authenticate(request, username=form.cleaned_data['username'], password=form.changed_data['password'])
+            user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
 
             if user:
                 login(request, user)
@@ -83,7 +83,7 @@ class AccountViewSet(ViewSet):
             new_email = form.cleaned_data.get('email')
 
             if new_email != request.user.email:
-                send_email_confirm(request, request.user, new_email)
+                sent_email_confirm(request, request.user, new_email)
 
             avatar = form.cleaned_data.get('avatar')
 
@@ -107,13 +107,13 @@ class AccountViewSet(ViewSet):
         try:
             user = User.objects.get(id=user_id)
 
-        except User.DoesNotExsist:
+        except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=404)
 
         if user.is_active and User.objects.filter(email=new_email).exists():
             return Response({'error': 'This email is already used'}, status=400)
 
-        user_email = new_email
+        user.email = new_email
         user.is_active = True
         user.save()
 

@@ -1,0 +1,20 @@
+Hello, {{ order.contact_name }}!
+
+Thank you for your order №{{ order.id }} placed on {{ order.created_at|date:"d.m.Y H:i" }}.
+We have successfully received your order and have started processing it.
+
+Order details:
+{% for item in order.items.all %}
+- {{ item.product.name }} – {{ item.quantity }} pcs at {{ item.price }} USD each
+{% endfor %}
+
+Total amount due: {{ order.total_price }} USD.
+
+Delivery address: {{ order.address }}
+
+Order status: {{ order.get_status_display }} (we will notify you when it changes).
+
+If you have any questions, please reply to this email or call us.
+
+Best regards,
+Django Shop Online Store
