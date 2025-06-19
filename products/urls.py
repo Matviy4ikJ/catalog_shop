@@ -13,6 +13,7 @@ from .views.cart import CartViewSet
 from django.conf.urls.static import static
 from django.conf import settings
 
+app_name = 'products'
 
 router = DefaultRouter()
 router.register(r'products', viewset=ProductViewSet)
@@ -30,9 +31,9 @@ urlpatterns = [
     path('cart/remove/<int:product_id>/', cart_remove, name='cart_remove'),
     path('cart/update/<int:product_id>/', cart_update, name='cart_update'),
     path('checkout/', checkout, name='checkout'),
+    path('', include(router.urls)),
 ]
 
-urlpatterns += router.urls
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -11,20 +11,30 @@ def category():
 
 
 @pytest.fixture
-def product(category):
+def product():
+
+    category_product = Category.objects.create(
+        name='category-test'
+    )
+
     return Product.objects.create(
         name='test-product',
-        category=category,
+        category=category_product,
         nomenclature='test-nomenclature-product',
         price=100,
     )
 
 
 @pytest.fixture
-def product_discount(category):
+def product_discount():
+
+    category_product_discount = Category.objects.create(
+        name='category-test2'
+    )
+
     return Product.objects.create(
         name='test-product',
-        category=category,
+        category=category_product_discount,
         nomenclature='test-nomenclature-discount',
         price=100,
         discount=20
