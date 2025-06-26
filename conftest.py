@@ -18,6 +18,15 @@ def user():
 
 
 @pytest.fixture
+def superuser():
+    return User.objects.create_superuser(
+        username='test_admin',
+        email='test_admin@gmail.com',
+        password='admin_password'
+    )
+
+
+@pytest.fixture
 def api_client():
     apiclient = APIClient()
     return apiclient

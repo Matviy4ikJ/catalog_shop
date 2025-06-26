@@ -11,10 +11,7 @@ from rest_framework.test import APIClient
 
 
 @pytest.mark.django_db
-def test_product_model():
-    category = Category.objects.create(
-        name='test_category'
-    )
+def test_product_model(category):
     product = Product.objects.create(
         name='test_product',
         category=category,
@@ -24,7 +21,7 @@ def test_product_model():
     )
 
     assert product.discount_price == 90
-    assert product.category.name == 'test_category'
+    assert product.category.name == 'test-category'
 
 
 @pytest.mark.django_db
@@ -62,9 +59,7 @@ def test_cart_model_discount_product(user, product_discount):
 
 
 @pytest.mark.django_db
-def test_cart_model_different_products(user):
-    category = Category.objects.create(name="Test Category")
-
+def test_cart_model_different_products(user, category):
     product = Product.objects.create(
         name="Product A",
         price=100,

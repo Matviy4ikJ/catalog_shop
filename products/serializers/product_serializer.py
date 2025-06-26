@@ -9,12 +9,13 @@ from ..models import Product, Category
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.PrimaryKeyRelatedField(read_only=True)
+    # category = serializers.PrimaryKeyRelatedField()
     discount_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
+            'id',
             'name',
             'description',
             'entity',
@@ -43,10 +44,10 @@ class ProductSerializer(serializers.ModelSerializer):
             return value
         raise serializers.ValidationError('Description must be a text.')
 
-    def validate_category(self, value):
-        if not (isinstance(value, str) or isinstance(value, Category)):
-            raise serializers.ValidationError('Category must be int or category instance.')
-        return value
+    # def validate_category(self, value):
+    #     if not (isinstance(value, str) or isinstance(value, Category)):
+    #         raise serializers.ValidationError('Category must be int or category instance.')
+    #     return value
 
     def validate_discount(self, value):
         if value < 0:

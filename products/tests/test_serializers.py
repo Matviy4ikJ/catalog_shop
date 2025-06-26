@@ -55,26 +55,26 @@ def test_product_serializer_invalid(category):
         assert field in serializer.errors
 
 
-@pytest.mark.django_db
-def test_products_serializer_read_only(category):
-    data = {
-        'name': 'test-name',
-        'description': 'test-description',
-        'entity': 10,
-        'price': 50,
-        'stock': 100,
-        'available': False,
-        'category': category.id,
-        'nomenclature': 'test-nomenclature',
-        'rating': 5,
-        'discount': 20,
-        'attributes': {}
-    }
-
-    serializer = ProductSerializer(data=data)
-
-    assert serializer.is_valid()
-    assert "category" not in serializer.data
+# @pytest.mark.django_db
+# def test_products_serializer_read_only(category):
+#     data = {
+#         'name': 'test-name',
+#         'description': 'test-description',
+#         'entity': 10,
+#         'price': 50,
+#         'stock': 100,
+#         'available': False,
+#         'category': category.id,
+#         'nomenclature': 'test-nomenclature',
+#         'rating': 5,
+#         'discount': 20,
+#         'attributes': {}
+#     }
+#
+#     serializer = ProductSerializer(data=data)
+#
+#     assert serializer.is_valid()
+#     assert "category" not in serializer.data
 
 
 @pytest.mark.django_db
